@@ -1,3 +1,5 @@
+import csv
+import io
 from decimal import ROUND_HALF_UP, Decimal
 
 CENT = Decimal("0.01")
@@ -37,3 +39,30 @@ def summary(lines: list[tuple[int, Decimal]], tax_rate: Decimal) -> dict:
     tot = invoice_total(lines, tax_rate)
     t = (tot - s).quantize(CENT, ROUND_HALF_UP)
     return {"subtotal": s, "tax": t, "total": tot}
+
+
+def format_money(amount: Decimal) -> str:
+    q = amount.quantize(CENT, ROUND_HALF_UP)
+    if q == 0:
+        q = abs(q)  # avoid "-0.00" for tiny negatives
+    return f"{q:,.2f}"
+
+
+def to_csv(lines: list[tuple[int, Decimal]], tax_rate: Decimal) -> str:
+    """Export invoice lines as CSV text.
+
+    Header ``qty,unit_price,line_total``, one row per line, then a final
+    ``,,TOTAL <total>`` row. Amounts use ``format_money``; fields containing
+    commas (e.g. ``1,234.50``) are quoted by the csv module. Rows are
+    separated by ``\n`` and the output always ends with a trailing ``\n``.
+    """
+    buf = io.StringIO()
+    writer = csv.writer(buf, lineterminator="\n")
+    writer.writerow(["qty", "unit_price", "line_total"])
+    for qty, unit_price in lines:
+        writer.writerow(
+            [qty, format_money(unit_price), format_money(line_total(qty, unit_price))]
+        )
+    total = format_money(invoice_total(lines, tax_rate))
+    writer.writerow(["", "", f"TOTAL {total}"])
+    return buf.getvalue()
