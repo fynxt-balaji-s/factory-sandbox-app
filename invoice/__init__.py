@@ -37,3 +37,10 @@ def summary(lines: list[tuple[int, Decimal]], tax_rate: Decimal) -> dict:
     tot = invoice_total(lines, tax_rate)
     t = (tot - s).quantize(CENT, ROUND_HALF_UP)
     return {"subtotal": s, "tax": t, "total": tot}
+
+
+def format_money(amount: Decimal) -> str:
+    q = amount.quantize(CENT, ROUND_HALF_UP)
+    if q == 0:
+        q = abs(q)  # avoid "-0.00" for tiny negatives
+    return f"{q:,.2f}"
