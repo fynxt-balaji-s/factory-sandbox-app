@@ -5,7 +5,7 @@ CENT = Decimal("0.01")
 
 def line_total(qty: int, unit_price: Decimal) -> Decimal:
     if qty < 0:
-        raise ValueError("qty must be >= 0")
+        return Decimal("0.00")
     return (unit_price * qty).quantize(CENT, ROUND_HALF_UP)
 
 
