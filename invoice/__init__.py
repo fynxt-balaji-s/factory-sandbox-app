@@ -19,3 +19,8 @@ def invoice_total(
     subtotal = sum((line_total(q, p) for q, p in lines), Decimal("0"))
     discounted = subtotal * (1 - discount_pct / 100)
     return (discounted * (1 + tax_rate)).quantize(CENT, ROUND_HALF_UP)
+
+
+def subtotal(lines: list[tuple[int, Decimal]]) -> Decimal:
+    total = sum((line_total(q, p) for q, p in lines), Decimal("0"))
+    return total.quantize(CENT, ROUND_HALF_UP)
