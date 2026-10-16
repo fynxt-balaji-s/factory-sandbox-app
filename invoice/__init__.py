@@ -19,3 +19,9 @@ def invoice_total(
     subtotal = sum((line_total(q, p) for q, p in lines), Decimal("0"))
     discounted = subtotal * (1 - discount_pct / 100)
     return (discounted * (1 + tax_rate)).quantize(CENT, ROUND_HALF_UP)
+
+
+def max_line_total(lines: list[tuple[int, Decimal]]) -> Decimal | None:
+    if not lines:
+        return None
+    return max(line_total(q, p) for q, p in lines)
